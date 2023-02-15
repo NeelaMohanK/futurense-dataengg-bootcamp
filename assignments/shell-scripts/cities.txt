@@ -1,0 +1,15 @@
+a=0
+[ -e old.txt ] && rm old.txt
+while [ $a -lt 6 ]
+do
+        read c
+        echo $c >> old.txt
+        a=`expr $a + 1`
+done
+echo "cities name"
+cat old.txt
+echo "find names with new in them"
+grep -i "new" old.txt
+echo "replace new with oold"
+grep -i new old.txt | sed 's/new/old/i' > new.txt
+cat new.txt
