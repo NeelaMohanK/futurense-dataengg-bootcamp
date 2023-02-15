@@ -3,7 +3,6 @@ from mrjob.job import MRJob
 
 class Rating_count(MRJob):
         def mapper(self, _, line):
-        	#print(line.split('\t'))
                 (userID,movieID, rating, timestamp) = line.split(',')
                 yield(rating, 1)
                         
