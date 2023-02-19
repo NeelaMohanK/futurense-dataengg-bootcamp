@@ -1,0 +1,116 @@
+create table if not exists transactions(trans_id int,trans_date string,
+. . . . . . . . > cust_id int,amount double,category string,desc string,city string,state string,pymt_mode string)
+. . . . . . . . > comment 'transaction details'
+. . . . . . . . > row format delimited
+. . . . . . . . > fields terminated by ','
+. . . . . . . . > lines terminated by '\n'
+. . . . . . . . > stored as textfile;
+
+
+
+ load data local inpath '/home/neelamohan/futurense_hadoop-pyspark/labs/dataset/retail/transactions.txt'
+. . . . . . . . > overwrite into table transactions;
+
+
+1)
+ select cust_id,count(cust_id) from transactions group by cust_id;
+
++----------+------+
+| cust_id  | _c1  |
++----------+------+
+| 4000001  | 8    |
+| 4000002  | 6    |
+| 4000003  | 3    |
+| 4000004  | 5    |
+| 4000005  | 5    |
+| 4000006  | 5    |
+| 4000007  | 6    |
+| 4000008  | 10   |
+| 4000009  | 6    |
+| 4000010  | 6    |
++----------+------+
+
+2)
+0: jdbc:hive2://> select cust_id,sum(amount) from transactions group by cust_id;
+
++----------+---------------------+
+| cust_id  |         _c1         |
++----------+---------------------+
+| 4000001  | 651.05              |
+| 4000002  | 706.97              |
+| 4000003  | 527.5899999999999   |
+| 4000004  | 337.06              |
+| 4000005  | 325.15              |
+| 4000006  | 539.38              |
+| 4000007  | 699.5500000000001   |
+| 4000008  | 859.42              |
+| 4000009  | 457.83              |
+| 4000010  | 447.09000000000003  |
++----------+---------------------+
+
+3)
+
+0: jdbc:hive2://> select cust_id,amount from transactions order by amount desc limit 3;
+
++----------+---------+
+| cust_id  | amount  |
++----------+---------+
+| 4000002  | 198.44  |
+| 4000003  | 198.19  |
+| 4000002  | 194.86  |
++----------+---------+
+
+4)
+0: jdbc:hive2://> select cust_id,pymt_mode,count(cust_id)  from transactions group by cust_id,pymt_mode;
+
++----------+------------+------+
+| cust_id  | pymt_mode  | _c2  |
++----------+------------+------+
+| 4000001  | cash       | 1    |
+| 4000001  | credit     | 7    |
+| 4000002  | cash       | 1    |
+| 4000002  | credit     | 5    |
+| 4000003  | credit     | 3    |
+| 4000004  | cash       | 4    |
+| 4000004  | credit     | 1    |
+| 4000005  | cash       | 1    |
+| 4000005  | credit     | 4    |
+| 4000006  | credit     | 5    |
+| 4000007  | credit     | 6    |
+| 4000008  | credit     | 10   |
+| 4000009  | credit     | 6    |
+| 4000010  | credit     | 6    |
++----------+------------+------+
+
+5)
+
+0: jdbc:hive2://> select * from (select city,count(city) as coun from transactions group by city) a order by coun desc limit 3;
+
++-------------+---------+
+|   a.city    | a.coun  |
++-------------+---------+
+| Honolulu    | 3       |
+| Columbus    | 3       |
+| Everett     | 2       |
++-------------+---------+
+
+6)
+
+select month,count(month) from (select substr(trans_date,1,2) as month from transactions)a group by month order by count(month) desc;
+
++--------+------+
+| month  | _c1  |
++--------+------+
+| 10     | 10   |
+| 06     | 10   |
+| 05     | 8    |
+| 02     | 6    |
+| 11     | 5    |
+| 12     | 4    |
+| 09     | 4    |
+| 04     | 4    |
+| 03     | 3    |
+| 08     | 2    |
+| 07     | 2    |
+| 01     | 2    |
++--------+------+
