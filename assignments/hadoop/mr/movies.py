@@ -1,7 +1,8 @@
+<<<<<<< HEAD
 from mrjob.job import MRJob
 
 
-class Rating_count(MRJob):
+class year_count(MRJob):
         def mapper(self, _, line):
             (id,title,genres)=line.split(',')
             title=title.split(" ")
@@ -12,4 +13,4 @@ class Rating_count(MRJob):
             yield(year, sum(c))
 
 if __name__ == '__main__':
-    Rating_count.run()
+    year_count.run()
