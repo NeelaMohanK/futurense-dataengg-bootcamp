@@ -1,10 +1,7 @@
-<<<<<<< HEAD
 from mrjob.job import MRJob
-
-
 class year_count(MRJob):
         def mapper(self, _, line):
-            (id,title,genres)=line.split(',')
+            id,title,genres=line.split(',')
             title=title.split(" ")
             year=title[-1]
             year=year[1:len(year)-1]

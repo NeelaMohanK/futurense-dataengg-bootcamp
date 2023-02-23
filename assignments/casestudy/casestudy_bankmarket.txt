@@ -1,0 +1,148 @@
+												CASESTUDY
+											---------------------
+
+TABLE CREATION
+----------------
+
+0: jdbc:hive2://> create table BankMarket(age int,job string,marital string,education string,default string,balance int,housing string,loan string,contact string,day int,month string,duration int,campaign int,pdays int,previous int,poutcome string,y string)
+. . . . . . . . > comment "Bank details"
+. . . . . . . . > ROW FORMAT DELIMITED
+. . . . . . . . > FIELDS TERMINATED BY ";"
+. . . . . . . . > LINES TERMINATED BY "\n"
+. . . . . . . . > stored as textfile;
+OK
+No rows affected (0.768 seconds)
+
+0: jdbc:hive2://> load data local inpath '/home/neelamohan/futurense_hadoop-pyspark/labs/dataset/bankmarket/bankmarketdata.csv' overwrite into table BankMarket;
+
+1)
+
+select (select count(y) from bankmarket where y="\"yes\"")/count(*) from bankmarket;
+
++----------------------+
+|         _c0          |
++----------------------+
+| 0.11698221711050164  |
++----------------------+
+1 row selected (54.319 seconds)
+
+
+2)
+
+select (select count(y) from bankmarket where y="\"no\"")/count(*) from bankmarket;
+
+
++---------------------+
+|         _c0         |
++---------------------+
+| 0.8829956648677342  |
++---------------------+
+1 row selected (53.473 seconds)
+
+3)
+ select b.f/a.tot as failure_rate from (select count(*) as tot from bankmarket)a,(select count(*) as f from bankmarket where poutcome like "\"failure\"")b;
+
++----------------------+
+|     failure_rate     |
++----------------------+
+| 0.10840042466601787  |
++----------------------+
+1 row selected (56.422 seconds)
+
+4)
+
+select max(age),min(age),avg(age) from bankmarket;
+
++------+------+--------------------+
+| _c0  | _c1  |        _c2         |
++------+------+--------------------+
+| 95   | 18   | 40.93621021432837  |
++------+------+--------------------+
+1 row selected (18.201 seconds)
+
+5)
+
+select x.median as median_balance,y.avrg as avg_balace from (select b as median from (select b,rn as rn ,max(rn) over() as mrn from
+ (select balance b,row_number() over(order by balance) as rn from bankmarket where balance is not null)a)a1 where rn=int(mrn/2)+1)x,(select avg(balance) as avrg from bankmarket) y;
+
+select percentile(cast(balance as bigint),0.5),avg(balance) from bankmarket;
+
+
+Total MapReduce CPU Time Spent: 25 seconds 480 msec
+OK
++-----------------+---------------------+
+| median_balance  |     avg_balace      |
++-----------------+---------------------+
+| 448             | 1362.2720576850766  |
++-----------------+---------------------+
+1 row selected (83.312 seconds)
+
+6)
+0: jdbc:hive2://> select age,count(age) from bankmarket where y='"yes"' group by age order by count(age) desc;
++------+-------+
+| age  |  _c1  |
++------+-------+
+| 32   | 2085  |
+| 31   | 1996  |
+| 33   | 1972  |
+| 34   | 1930  |
+| 35   | 1894  |
+| 36   | 1806  |
+| 30   | 1757  |
+| 37   | 1696  |
+| 39   | 1487  |
+| 38   | 1466  |
+| 40   | 1355  |
+| 41   | 1291  |
+| 42   | 1242  |
+| 45   | 1216  |
+| 29   | 1185  |
+| 46   | 1175  |
+| 43   | 1161  |
+| 44   | 1136  |
+.
+.
+
+
+
+7)
+select marital,count(marital) from bankmarket where marital is not null and marital not like "\"marital\"" group by marital order by count(marital) desc;
+
++-------------+--------+
+|   marital   |  _c1   |
++-------------+--------+
+| "married"   | 27214  |
+| "single"    | 12790  |
+| "divorced"  | 5207   |
++-------------+--------+
+3 rows selected (38.227 seconds)
+
+
+8)
+0: jdbc:hive2://> select age,marital,count(marital) from bankmarket where y='"yes"' group by age,marital order by count(marital) desc limit 20;
+
++------+------------+-------+
+| age  |  marital   |  _c2  |
++------+------------+-------+
+| 34   | "married"  | 1131  |
+| 35   | "married"  | 1077  |
+| 36   | "married"  | 1076  |
+| 33   | "married"  | 1075  |
+| 37   | "married"  | 1073  |
+| 31   | "single"   | 1017  |
+| 30   | "single"   | 1012  |
+| 32   | "married"  | 1007  |
+| 39   | "married"  | 960   |
+| 32   | "single"   | 941   |
+| 40   | "married"  | 929   |
+| 38   | "married"  | 905   |
+| 45   | "married"  | 893   |
+| 31   | "married"  | 881   |
+| 41   | "married"  | 875   |
+| 46   | "married"  | 852   |
+| 42   | "married"  | 840   |
+| 47   | "married"  | 826   |
+| 43   | "married"  | 805   |
+| 44   | "married"  | 782   |
++------+------------+-------+
+20 rows selected (42.512 seconds)
